@@ -1,12 +1,33 @@
 import urllib2, sys, re, json
 from bs4 import BeautifulSoup, NavigableString, Comment
 
+IGNORE_BREAKS = True
+INVALID_TAGS = ['a','b','i','u']
+
 def main():
     url = sys.argv[1]
     opener = urllib2.build_opener()
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     page = opener.open(url)
     soup = BeautifulSoup(page.read())
+
+    for tag in soup.find_all(True):
+        if tag.name in INVALID_TAGS:
+            tag.replace_with(tag.encode_contents())
+    strings = []
+    for tag in soup.strings:
+        strings.append(tag)
+    while len(strings) > 0:
+        tag = strings[0]
+        if isinstance(tag.next_element, NavigableString):
+            strings.remove(tag.next_element)
+            tag.wrap(soup.new_tag('b'))
+            new_tag = tag.parent.wrap(soup.new_tag('b'))
+            new_tag.b.replace_with(tag + tag.next_element.extract())
+            strings[0] = new_tag.string
+            new_tag.unwrap()
+        else:
+            strings.remove(tag)
 
     cur_el = soup
     f_in = open(sys.argv[2])
@@ -33,9 +54,12 @@ def main():
     res = []
     for el in cur_el.contents:
         if isinstance(el, NavigableString) and not isinstance(el, Comment):
-            if el.strip():
+            if el.strip() or not IGNORE_BREAKS:
                 res.append(el)
-    print res[elem_id].strip()
+    if IGNORE_BREAKS:
+        print res[elem_id].strip()
+    else:
+        print ''.join(res).strip()
 
 if __name__ == "__main__":
     main()
