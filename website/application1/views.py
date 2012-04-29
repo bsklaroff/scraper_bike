@@ -12,6 +12,11 @@ import uuid
 import urllib2, sys, re, json
 from bs4 import BeautifulSoup, NavigableString, Comment
 
+class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
+    def http_error_302(self, req, fp, code, msg, headers):
+        return urllib2.HTTPRedirectHandler.http_error_302(self, req, fp, code, msg, headers)
+    http_error_301 = http_error_303 = http_error_307 = http_error_302
+
 def home(request):
     # t = loader.get_template('postRequest.html')
     # t.render(Context({"name":"Lu"}))
@@ -129,7 +134,8 @@ def clean_up_soup(soup, is_parser):
 def scrape(request):
     url = request.GET['url']
 
-    opener = urllib2.build_opener()
+    cookieprocessor = urllib2.HTTPCookieProcessor()
+    opener = urllib2.build_opener(MyHTTPRedirectHandler, cookieprocessor)
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     page = opener.open(url)
     soup = BeautifulSoup(page.read())
@@ -149,7 +155,8 @@ def parser(url, text_to_match):
     def matches_input(tag):
         return tag.find(text_to_match) != -1
 
-    opener = urllib2.build_opener()
+    cookieprocessor = urllib2.HTTPCookieProcessor()
+    opener = urllib2.build_opener(MyHTTPRedirectHandler, cookieprocessor)
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     page = opener.open(url)
     soup = BeautifulSoup(page.read())
