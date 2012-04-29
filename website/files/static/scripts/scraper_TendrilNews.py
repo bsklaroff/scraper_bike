@@ -1,6 +1,6 @@
 import urllib2, sys, re, json
 from bs4 import BeautifulSoup, NavigableString, Comment
-DATA = '{"title":[[["html", {}, 0, 0], ["body", {"class": ["posting"]}, 0, 0], ["h2", {}, 0, 0]], 0]}'
+DATA = '{"title":[[["html", {"lang": "en-US", "dir": "ltr"}, 0, 0], ["head", {}, 0, 0], ["title", {}, 0, 0]], 0],"body":[[["html", {"lang": "en-US", "dir": "ltr"}, 0, 0], ["body", {"class": ["single", "single-press", "postid-8214", "root", "root-essent-and-tendril-partner-on-first-of-its-kind-smart-energy-application-crowdsourcing-project"]}, 0, 0], ["div", {"id": "wrapper"}, 0, 0], ["div", {"id": "contentWrapper"}, 0, 7], ["div", {"id": "content", "class": ["interior", "press"]}, 0, 0], ["div", {"class": ["inner"]}, 0, 0], ["div", {"id": "main"}, 0, 1], ["p", {}, 0, 3], ["strong", {}, 2, 2]], 0]}'
 IGNORE_BREAKS = True
 INVALID_TAGS = ['a','b','i','u']
 

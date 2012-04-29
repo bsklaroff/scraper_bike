@@ -3,7 +3,7 @@ from django.template import Context, loader
 from django.shortcuts import render_to_response, get_object_or_404
 from django.views.decorators.csrf import csrf_protect
 from django.core.context_processors import csrf
-from application1.models import Field, Url
+from application1.models import Field, Url, MultipleMatch
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.utils import simplejson
@@ -12,11 +12,13 @@ import uuid
 import urllib2, sys, re, json
 from bs4 import BeautifulSoup, NavigableString, Comment
 import os
+import views_multi
 
 class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
     def http_error_302(self, req, fp, code, msg, headers):
         return urllib2.HTTPRedirectHandler.http_error_302(self, req, fp, code, msg, headers)
     http_error_301 = http_error_303 = http_error_307 = http_error_302
+
 
 def home(request):
     # t = loader.get_template('postRequest.html')
@@ -84,7 +86,7 @@ def create_entry(request):
     name = json_data['name'].strip()
     fields = json_data['fields']
     print fields
-    url_obj = Url(url=url, name=name)
+    url_obj = Url(url=url, name=name, multiple_match=False)
     url_obj.save()
     write_data = '{'
     for field in fields:
@@ -113,9 +115,6 @@ def create_entry(request):
     f.close()
     return HttpResponse(url_obj.id)
 
-
-
-
 def create_entry2(request):
     json_data = simplejson.loads(request.raw_post_data)
     url = json_data['url']
@@ -139,6 +138,8 @@ def create_entry2(request):
 def get_entry(request):
     id = request.GET['id']
     url_obj = Url.objects.get(id=id)
+    if url_obj.multiple_match:
+        return views_multi.get_entry_multi(request, url_obj)
     fields = Field.objects.filter(url = url_obj)
     url_link = '/static/scripts/scraper_' + url_obj.name.replace(' ', '') + '.py'
     c = {'url_obj' : url_obj, 'fields' : fields, 'id' : id, 'link' : url_link}
@@ -173,7 +174,10 @@ def clean_up_soup(soup, is_parser):
 
 def scrape(request):
     url = request.GET['url']
-
+    id = request.GET['id']
+    url_obj = Url.objects.get(id=id)
+    if url_obj.multiple_match:
+        return views_multi.multi_scrape(request, url, url_obj)
     cookieprocessor = urllib2.HTTPCookieProcessor()
     opener = urllib2.build_opener(MyHTTPRedirectHandler, cookieprocessor)
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
@@ -181,8 +185,8 @@ def scrape(request):
     soup = BeautifulSoup(page.read())
     clean_up_soup(soup, False)
 
-    id = request.GET['id']
-    url_obj = Url.objects.get(id=id)
+
+
     fields = Field.objects.filter(url = url_obj)
 
     return_field_data = {}

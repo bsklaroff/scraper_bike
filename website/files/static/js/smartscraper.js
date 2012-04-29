@@ -58,7 +58,6 @@ jQuery(document).ready(function ($) {
 	var counter = 0;
 	var counter_array = 0
 	while (counter < field_counter) {
-//while (
 	    if ($('#field_name' + counter).val() == undefined) {
 		counter++;
 		continue;
@@ -68,8 +67,6 @@ jQuery(document).ready(function ($) {
 	    field[1] = $('#text_to_match' + counter).val();
 	    field[2] = $('#ignore_breaks' + counter).is(':checked');
 	    fields[counter_array]  = field;
-	    alert($('#field_name' + counter).val());
-	    alert($('#text_to_match' + counter).val());
 	    counter++;
 	    counter_array++;
 	}
@@ -82,8 +79,7 @@ jQuery(document).ready(function ($) {
             data: data,
             dataType: 'text',
             success: function(g) {
-		alert(g);
-                //window.location.href = '/get?id=' + g;
+                window.location.href = '/get?id=' + g;
 
             }
         });
@@ -100,10 +96,61 @@ jQuery(document).ready(function ($) {
 	var url = $('#scrape_url').val()
 	$.get("/scrape", { id: id, url: url }, function(fields_string) {
 	    var fields = eval('(' + fields_string + ')');
+	    //alert(JSON.stringify(fields));
 	    for(var field in fields) {
-		$('#' + field).html(fields[field]);
+		if (fields[field] instanceof Array) {
+		    $('#' + field).html("");
+		    for (i in fields[field]) {
+			f = fields[field][i];
+			if (f == "False" || f.toLowerCase() == "none") {
+			    continue;
+			}
+			$('#' + field).append(f + "<br/>");
+			
+		    }
+		} else {
+		    $('#' + field).html(fields[field]);
+		}
 	    }
 	});
+
+    });
+    
+
+    $('#submit_multiple_match').click(function() {
+	var json_data = {};
+	json_data['url'] = $('#url').val();
+	json_data['name'] = $('#name').val();
+	fields = new Array();
+	var counter = 0;
+	var counter_array = 0
+	while (counter < field_counter) {
+	    if ($('#field_name' + counter).val() == undefined) {
+		counter++;
+		continue;
+	    }
+	    field = new Array();
+	    field[0] = $('#field_name' + counter).val();
+	    field[1] = $('#text_to_match' + counter).val();
+	    field[2] = $('#ignore_breaks' + counter).is(':checked');
+	    fields[counter_array]  = field;
+	    counter++;
+	    counter_array++;
+	}
+	json_data['fields'] = fields;
+        var data = JSON.stringify(json_data);
+        $.ajax({
+            type: 'POST',
+            dataType: 'text',
+            url: '/submitMultiMatch/',
+            data: data,
+            dataType: 'text',
+            success: function(g) {
+		
+                window.location.href = '/get?id=' + g;
+
+            }
+        });
 
     });
 
