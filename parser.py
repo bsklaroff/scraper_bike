@@ -1,6 +1,11 @@
 import urllib2, sys, re, json
 from bs4 import BeautifulSoup, NavigableString, Comment
 
+string_to_match = "Salsa El Mariachi - Singlespeed 29er - $725 (potrero hill)"
+
+def matches_input(tag):
+    return tag.find(string_to_match) != -1
+
 def main():
     url = sys.argv[1]
     opener = urllib2.build_opener()
@@ -8,7 +13,7 @@ def main():
     page = opener.open(url)
     soup = BeautifulSoup(page.read())
 
-    og_el = soup.find(text=re.compile(sys.argv[2]))
+    og_el = soup.find(text=matches_input)
     cur_el = og_el.parent
 
     # This finds the exact index of the element in the contents of its parent
