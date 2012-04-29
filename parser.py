@@ -1,31 +1,51 @@
-import urllib2, sys, re
-from bs4 import BeautifulSoup
+import urllib2, sys, re, json
+from bs4 import BeautifulSoup, NavigableString, Comment
 
 def main():
     url = sys.argv[1]
-    page = urllib2.urlopen(url)
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+    page = opener.open(url)
     soup = BeautifulSoup(page.read())
+
     og_el = soup.find(text=re.compile(sys.argv[2]))
     cur_el = og_el.parent
-    elem_name_list = []
-    elem_num_list = []
-    while cur_el.name != '[document]':
-        elem_name_list.insert(0, cur_el.name)
-        found = False
+
+    # This finds the exact index of the element in the contents of its parent
+    nav_contents = []
+    for el in cur_el.contents:
+        if isinstance(el, NavigableString) and not isinstance(el, Comment):
+            if el.strip():
+                nav_contents.append(el)
+    el_id = 0
+    for i,el in enumerate(nav_contents):
+        if el == og_el:
+            el_id = i
+
+    # This finds the path to the parent in the document tree
+    path = []
+    while cur_el.name != soup.name:
+        # Find the index of the element out of the elements that match its attributes
+        cur_el_attrs_num = 0
+        # Find the index of the element out of all possible elements
+        cur_el_num = 0
+        attrs_match_count = 0
         for i,el in enumerate(cur_el.parent.find_all(cur_el.name)):
             if el == cur_el:
-                if not found:
-                    found = True
-                    elem_num_list.insert(0, i)
-                else:
-                    print 'ERROR: duplicate element found in children of parent'
-        if not found:
-            print 'ERROR: element not found in children of parent'
+                cur_el_num = i
+                cur_el_attrs_num = attrs_match_count
+            if el.attrs == cur_el.attrs:
+                attrs_match_count += 1
+            
+        cur_el_attrs = cur_el.attrs if cur_el.attrs else {}
+        cur_el_info = (cur_el.name, cur_el_attrs, cur_el_attrs_num, cur_el_num)
+        path.insert(0, cur_el_info)
         cur_el = cur_el.parent
-    for i in range(len(elem_name_list)):
-        print elem_name_list[i]
-        print elem_num_list[i]
+
+    print path
+    f_out = open('data', 'w')
+    f_out.write(json.dumps([path, el_id]))
+    f_out.close()
 
 if __name__ == "__main__":
     main()
-

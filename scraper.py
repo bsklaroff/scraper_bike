@@ -1,25 +1,41 @@
-import urllib2, sys, re
-from bs4 import BeautifulSoup
+import urllib2, sys, re, json
+from bs4 import BeautifulSoup, NavigableString, Comment
 
 def main():
     url = sys.argv[1]
     opener = urllib2.build_opener()
-    opener.addheaders[('User-agent', 'Mozilla/5.0')]
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     page = opener.open(url)
     soup = BeautifulSoup(page.read())
-    f_in = open(sys.argv[2])
+
     cur_el = soup
-    elem_name = f_in.readline()
-    while elem_name != '':
-        elem_num = int(f_in.readline())
-        cur_el = cur_el.find_all(elem_name.strip())[elem_num]
-        elem_name = f_in.readline()
+    f_in = open(sys.argv[2])
+    path, elem_id = json.loads(f_in.read())
     f_in.close()
-    
+    for node in path:
+        print node
+        elem_name, elem_attrs, elem_attrs_num, elem_num = node
+        matching_elems = cur_el.find_all(elem_name.strip())
+        # First try matching element by matching attributes
+        attrs_match_count = 0
+        found = False
+        for i,el in enumerate(matching_elems):
+            if el.attrs == elem_attrs:
+                if elem_attrs_num == attrs_match_count:
+                    found = True
+                    cur_el = el
+                    break
+                attrs_match_count += 1
+        # If attributes do not match, just match by children's index in parent
+        if not found:
+            cur_el = matching_elems[elem_num]
+
+    res = []
     for el in cur_el.contents:
-        
-    print cur_el.
-    
+        if isinstance(el, NavigableString) and not isinstance(el, Comment):
+            if el.strip():
+                res.append(el)
+    print res[elem_id].strip()
 
 if __name__ == "__main__":
     main()
