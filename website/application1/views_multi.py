@@ -86,7 +86,7 @@ def multi_scraper(url, path):
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     web_page = opener.open(url)
     soup = BeautifulSoup(web_page.read())
-    
+    clean_up_soup(soup, False)
     path.reverse()
     current_element = soup
 
@@ -99,6 +99,7 @@ def multi_scraper(url, path):
                 continue
             if not test_values:
                 continue
+            print test_values
             if len(test_values) > 300 or len(test_values) < 2:
                 continue
             false_count = 0
@@ -109,7 +110,6 @@ def multi_scraper(url, path):
             if false_count < greatest_false:
                 best_match = test_values
                 greatest_false = false_count
-            #print test_values
     return best_match
 
 
@@ -136,10 +136,11 @@ def recursive_match(path, i, j, current_element):
 
 def clean_up_soup(soup, is_parser):
     invalid_tags = ['a','b','i','u']
+    """
     for tag in soup.find_all(True):
         if tag.name in invalid_tags:
             tag.replace_with(tag.encode_contents())
-
+    """
     strings = []
     for tag in soup.strings:
         strings.append(tag)
@@ -160,3 +161,4 @@ def clean_up_soup(soup, is_parser):
         else:
             strings.remove(tag)
     return soup
+
