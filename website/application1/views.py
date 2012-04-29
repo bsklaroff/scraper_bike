@@ -88,7 +88,7 @@ def create_entry(request):
     url_obj.save()
     for field in fields:
         print 'got here'
-        match_text = ''.join(field[1].split('\n')[0].split()).strip()
+        match_text = field[1].split('\n')[0].replace(' ','').strip()
         field_obj = Field(field_name=field[0].strip(),
                           match_text=match_text,
                           match_data=parser(url, match_text),
@@ -116,7 +116,7 @@ def clean_up_soup(soup, is_parser):
     if is_parser:
         for i,tag in enumerate(strings):
             new_tag = tag.wrap(soup.new_tag('b'))
-            new_tag.string.replace_with(''.join(new_tag.string.split()))
+            new_tag.string.replace_with(new_tag.string.replace(' ',''))
             strings[i] = new_tag.string
             new_tag.unwrap()
     while len(strings) > 0:

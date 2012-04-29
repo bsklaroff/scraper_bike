@@ -27,7 +27,7 @@ def main():
         strings.append(tag)
     for i,tag in enumerate(strings):
         new_tag = tag.wrap(soup.new_tag('b'))
-        new_tag.string.replace_with(''.join(new_tag.string.split()))
+        new_tag.string.replace_with(new_tag.string.replace(' ',''))
         strings[i] = new_tag.string
         new_tag.unwrap()
     while len(strings) > 0:
