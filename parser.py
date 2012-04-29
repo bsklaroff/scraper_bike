@@ -25,6 +25,7 @@ def main():
             strings.remove(tag.next_element)
             new_tag = tag.wrap(soup.new_tag('b'))
             new_tag.string.replace_with(tag + tag.next_element.extract())
+            new_tag.string.replace_with(''.join(new_tag.string.split()))
             strings[0] = new_tag.string
             new_tag.unwrap()
         else:
