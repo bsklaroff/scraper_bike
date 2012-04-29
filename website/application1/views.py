@@ -70,34 +70,67 @@ def logout_view(request):
     logout(request)
     return HttpResponse("Successfully logged out")
 
-def createEntry(request):
-    print parser("http://sfbay.craigslist.org/sfc/bks/2943895191.html", "Books for Sale! - $1 (north beach / telegraph hill)")
+def test(request):
+    print parser("http://sfbay.craigslist.org/sfc/bks/2943895191.html", "Books for Sale")
     return HttpResponse("success")
                  
 
-def createEntryActual(request):
+def create_entry(request):
     json_data = simplejson.loads(request.raw_post_data)
     url = json_data['url']
-    name = json_data['name']
+    name = json_data['name'].strip()
     fields = json_data['fields']
+    print fields
     url_obj = Url(url=url, name=name)
     url_obj.save()
     for field in fields:
-        field_obj = Field(field_name=field[0], match_text=field[1], match_data="hello", url=url_obj)
-        print parser(url, field[1])
+        print 'got here'
+        field_obj = Field(field_name=field[0].strip(),
+                          match_text=field[1].strip(),
+                          match_data=parser(url, field[1].strip()), url=url_obj,
+                          field_name_ns=field[0].strip().replace(' ', ''))
         field_obj.save()
-    return HttpResponse("success")
+    return HttpResponse(url_obj.id)
     
 
+def get_entry(request):
+    id = request.GET['id']
+    url_obj = Url.objects.get(id=id)
+    fields = Field.objects.filter(url = url_obj)
+    c = {'url_obj' : url_obj, 'fields' : fields, 'id' : id}
+    return render_to_response('get_entry.html', c)
 
 
-def parser(url, text_to_match):
+def scrape(request):
+    url = request.GET['url']
+
     opener = urllib2.build_opener()
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     page = opener.open(url)
     soup = BeautifulSoup(page.read())
 
-    og_el = soup.find(text=re.compile(text_to_match))
+    id = request.GET['id']
+    url_obj = Url.objects.get(id=id)
+    fields = Field.objects.filter(url = url_obj)
+    
+    return_field_data = {}
+    for field in list(fields):
+        return_field_data[field.field_name_ns] = scraper(soup, field.match_data)
+
+    return HttpResponse(json.dumps(return_field_data))
+
+
+
+def parser(url, text_to_match):
+    def matches_input(tag):
+        return tag.find(text_to_match) != -1
+
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+    page = opener.open(url)
+    soup = BeautifulSoup(page.read())
+
+    og_el = soup.find(text=matches_input)
     cur_el = og_el.parent
 
     # This finds the exact index of the element in the contents of its parent                                                                                                                             
@@ -141,16 +174,10 @@ def parser(url, text_to_match):
 
 
 
-def scraper(url):
-    opener = urllib2.build_opener()
-    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-    page = opener.open(url)
-    soup = BeautifulSoup(page.read())
+def scraper(soup, match_data):
 
     cur_el = soup
-    f_in = open(sys.argv[2])
-    path, elem_id = json.loads(f_in.read())
-    f_in.close()
+    path, elem_id = json.loads(match_data)
     for node in path:
         print node
         elem_name, elem_attrs, elem_attrs_num, elem_num = node
@@ -174,4 +201,4 @@ def scraper(url):
         if isinstance(el, NavigableString) and not isinstance(el, Comment):
             if el.strip():
                 res.append(el)
-    print res[elem_id].strip()
+    return res[elem_id].strip()
