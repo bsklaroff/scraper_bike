@@ -33,7 +33,6 @@ def main():
     path, elem_id = json.loads(f_in.read())
     f_in.close()
     for node in path:
-        print node
         elem_name, elem_attrs, elem_attrs_num, elem_num = node
         matching_elems = cur_el.find_all(elem_name.strip())
         # First try matching element by matching attributes

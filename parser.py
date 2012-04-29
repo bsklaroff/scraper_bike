@@ -19,13 +19,17 @@ def main():
     strings = []
     for tag in soup.strings:
         strings.append(tag)
+    for i,tag in enumerate(strings):
+        new_tag = tag.wrap(soup.new_tag('b'))
+        new_tag.string.replace_with(''.join(new_tag.string.split()))
+        strings[i] = new_tag.string
+        new_tag.unwrap()
     while len(strings) > 0:
         tag = strings[0]
         if isinstance(tag.next_element, NavigableString):
             strings.remove(tag.next_element)
             new_tag = tag.wrap(soup.new_tag('b'))
             new_tag.string.replace_with(tag + tag.next_element.extract())
-            new_tag.string.replace_with(''.join(new_tag.string.split()))
             strings[0] = new_tag.string
             new_tag.unwrap()
         else:

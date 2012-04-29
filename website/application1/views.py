@@ -12,7 +12,6 @@ import uuid
 import urllib2, sys, re, json
 from bs4 import BeautifulSoup, NavigableString, Comment
 
-
 def home(request):
     # t = loader.get_template('postRequest.html')
     # t.render(Context({"name":"Lu"}))
@@ -21,7 +20,7 @@ def home(request):
         is_authenticated = True
     else:
         is_authenticated = False
-    
+
     c = {'Name':'Lu', 'is_authenticated':is_authenticated}
     c.update(csrf(request))
     #return render_to_response('postRequest.html', c)
@@ -40,7 +39,7 @@ def createUser(request):
     newUser = User(username=username, email=email, password=password, first_name=first, last_name=last)
     newUser.set_password(password)
     newUser.save()
-    
+
     return HttpResponse("Yay")
 
 
@@ -73,7 +72,6 @@ def logout_view(request):
 def test(request):
     print parser("http://sfbay.craigslist.org/sfc/bks/2943895191.html", "Books for Sale")
     return HttpResponse("success")
-                 
 
 def create_entry(request):
     json_data = simplejson.loads(request.raw_post_data)
@@ -85,13 +83,15 @@ def create_entry(request):
     url_obj.save()
     for field in fields:
         print 'got here'
+        match_text = ''.join(field[1].split('\n')[0].split()).strip()
         field_obj = Field(field_name=field[0].strip(),
-                          match_text=field[1].strip(),
-                          match_data=parser(url, field[1].strip()), url=url_obj,
+                          match_text=match_text,
+                          match_data=parser(url, match_text),
+                          url=url_obj,
                           field_name_ns=field[0].strip().replace(' ', ''))
         field_obj.save()
     return HttpResponse(url_obj.id)
-    
+
 
 def get_entry(request):
     id = request.GET['id']
@@ -100,6 +100,31 @@ def get_entry(request):
     c = {'url_obj' : url_obj, 'fields' : fields, 'id' : id}
     return render_to_response('get_entry.html', c)
 
+def clean_up_soup(soup, is_parser):
+    invalid_tags = ['a','b','i','u']
+    for tag in soup.find_all(True):
+        if tag.name in invalid_tags:
+            tag.replace_with(tag.encode_contents())
+    strings = []
+    for tag in soup.strings:
+        strings.append(tag)
+    if is_parser:
+        for i,tag in enumerate(strings):
+            new_tag = tag.wrap(soup.new_tag('b'))
+            new_tag.string.replace_with(''.join(new_tag.string.split()))
+            strings[i] = new_tag.string
+            new_tag.unwrap()
+    while len(strings) > 0:
+        tag = strings[0]
+        if isinstance(tag.next_element, NavigableString):
+            strings.remove(tag.next_element)
+            new_tag = tag.wrap(soup.new_tag('b'))
+            new_tag.string.replace_with(tag + tag.next_element.extract())
+            strings[0] = new_tag.string
+            new_tag.unwrap()
+        else:
+            strings.remove(tag)
+    return soup
 
 def scrape(request):
     url = request.GET['url']
@@ -108,18 +133,17 @@ def scrape(request):
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     page = opener.open(url)
     soup = BeautifulSoup(page.read())
+    clean_up_soup(soup, False)
 
     id = request.GET['id']
     url_obj = Url.objects.get(id=id)
     fields = Field.objects.filter(url = url_obj)
-    
+
     return_field_data = {}
     for field in list(fields):
         return_field_data[field.field_name_ns] = scraper(soup, field.match_data)
 
     return HttpResponse(json.dumps(return_field_data))
-
-
 
 def parser(url, text_to_match):
     def matches_input(tag):
@@ -129,11 +153,12 @@ def parser(url, text_to_match):
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     page = opener.open(url)
     soup = BeautifulSoup(page.read())
+    soup = clean_up_soup(soup, True)
 
     og_el = soup.find(text=matches_input)
     cur_el = og_el.parent
 
-    # This finds the exact index of the element in the contents of its parent                                                                                                                             
+    # This finds the exact index of the element in the contents of its parent
     nav_contents = []
     for el in cur_el.contents:
         if isinstance(el, NavigableString) and not isinstance(el, Comment):
@@ -144,12 +169,12 @@ def parser(url, text_to_match):
         if el == og_el:
             el_id = i
 
-    # This finds the path to the parent in the document tree                                                                                                                                              
+    # This finds the path to the parent in the document tree
     path = []
     while cur_el.name != soup.name:
-        # Find the index of the element out of the elements that match its attributes                                                                                                                     
+        # Find the index of the element out of the elements that match its attributes
         cur_el_attrs_num = 0
-        # Find the index of the element out of all possible elements                                                                                                                                      
+        # Find the index of the element out of all possible elements
         cur_el_num = 0
         attrs_match_count = 0
         for i,el in enumerate(cur_el.parent.find_all(cur_el.name)):
@@ -170,19 +195,14 @@ def parser(url, text_to_match):
     #f_out.write(json.dumps([path, el_id]))
     #f_out.close()
 
-
-
-
-
 def scraper(soup, match_data):
-
     cur_el = soup
     path, elem_id = json.loads(match_data)
     for node in path:
         print node
         elem_name, elem_attrs, elem_attrs_num, elem_num = node
         matching_elems = cur_el.find_all(elem_name.strip())
-        # First try matching element by matching attributes                                                                                                                                               
+        # First try matching element by matching attributes
         attrs_match_count = 0
         found = False
         for i,el in enumerate(matching_elems):
@@ -192,7 +212,7 @@ def scraper(soup, match_data):
                     cur_el = el
                     break
                 attrs_match_count += 1
-        # If attributes do not match, just match by children's index in parent                                                                                                                            
+        # If attributes do not match, just match by children's index in parent
         if not found:
             cur_el = matching_elems[elem_num]
 
