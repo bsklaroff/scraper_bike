@@ -146,7 +146,7 @@ def get_entry(request):
     return render_to_response('get_entry.html', c)
 
 def clean_up_soup(soup, is_parser):
-    invalid_tags = ['a','b','i','u']
+    invalid_tags = ['a','b','i','u','strong']
     for tag in soup.find_all(True):
         if tag.name in invalid_tags:
             tag.replace_with(tag.encode_contents())
@@ -170,7 +170,6 @@ def clean_up_soup(soup, is_parser):
             new_tag.unwrap()
         else:
             strings.remove(tag)
-    return soup
 
 def scrape(request):
     url = request.GET['url']
@@ -204,7 +203,7 @@ def parser(url, text_to_match):
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     page = opener.open(url)
     soup = BeautifulSoup(page.read())
-    soup = clean_up_soup(soup, True)
+    clean_up_soup(soup, True)
 
     og_el = soup.find(text=matches_input)
     cur_el = og_el.parent

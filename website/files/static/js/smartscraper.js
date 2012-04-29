@@ -78,9 +78,12 @@ jQuery(document).ready(function ($) {
             url: '/submitEntry/',
             data: data,
             dataType: 'text',
-            success: function(g) {
-                window.location.href = '/get?id=' + g;
-
+            complete: function(res, status) {
+		if (status == "success") {
+                    window.location.href = '/get?id=' + res.responseText;
+		} else {
+		    alert("An error occured. Please try again");
+		}
             }
         });
     });
