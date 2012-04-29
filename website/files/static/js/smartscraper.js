@@ -68,8 +68,6 @@ jQuery(document).ready(function ($) {
 	    field[1] = $('#text_to_match' + counter).val();
 	    field[2] = $('#ignore_breaks' + counter).is(':checked');
 	    fields[counter_array]  = field;
-	    alert($('#field_name' + counter).val());
-	    alert($('#text_to_match' + counter).val());
 	    counter++;
 	    counter_array++;
 	}
@@ -81,10 +79,12 @@ jQuery(document).ready(function ($) {
             url: '/submitEntry/',
             data: data,
             dataType: 'text',
-            success: function(g) {
-		alert(g);
-                //window.location.href = '/get?id=' + g;
-
+            complete: function(res, status) {
+		if (status == "success") {
+                    window.location.href = '/get?id=' + res.responseText;
+		} else {
+		    alert("An error occured. Please try again");
+		}
             }
         });
     });
