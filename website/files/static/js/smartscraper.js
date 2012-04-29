@@ -42,6 +42,7 @@ jQuery(document).ready(function ($) {
 	$('#fields').append('<div id=field' + field_counter + '><div class="row"> <div class="two columns"><input type="text" placeholder="Name of Field" class="small input-text" id="field_name' + field_counter + '"/></div><div class="two columns"><a href="javascript:void(0);" class="nice small white button radius" id="delete_field' + field_counter + '">-</a></div><div class="eight columns"> </div></div><textarea id="text_to_match' + field_counter + '" class="large_text_area" placeholder="Text to Match"></textarea></div></div>');
 	var local_counter = field_counter
 	$('#delete_field' + local_counter).click(function() {
+	    $('#field_name'+ local_counter).remove();
 	    $('#field' + local_counter).remove();
 	});
 	field_counter++;
@@ -54,15 +55,22 @@ jQuery(document).ready(function ($) {
 	json_data['url'] = $('#url').val();
 	json_data['name'] = $('#name').val();
 	fields = new Array();
-	var counter = 0;	
-	while ($('#field_name' + counter).val() != undefined) {
+	var counter = 0;
+	var counter_array = 0
+	while (counter < field_counter) {
+//while (
+	    if ($('#field_name' + counter).val() == undefined) {
+		counter++;
+		continue;
+	    }
 	    field = new Array();
 	    field[0] = $('#field_name' + counter).val();
 	    field[1] = $('#text_to_match' + counter).val();
-	    fields[counter]  = field;
+	    fields[counter_array]  = field;
 	    alert($('#field_name' + counter).val());
 	    alert($('#text_to_match' + counter).val());
 	    counter++;
+	    counter_array++;
 	}
 	json_data['fields'] = fields;
         var data = JSON.stringify(json_data);
@@ -73,9 +81,29 @@ jQuery(document).ready(function ($) {
             data: data,
             dataType: 'text',
             success: function(g) {
-                alert(g);
+		alert(g);
+                window.location.href = '/get?id=' + g;
+
             }
         });
+    });
+    function getUrlVars() {
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+	});
+	return vars;
+    }
+    $('#scrape').click(function() {
+	var id = getUrlVars()["id"];
+	var url = $('#scrape_url').val()
+	$.get("/scrape", { id: id, url: url }, function(fields_string) {
+	    var fields = eval('(' + fields_string + ')');
+	    for(var field in fields) {
+		$('#' + field).html(fields[field]);
+	    }
+	});
+
     });
 
 });

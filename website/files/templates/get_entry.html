@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="twelve columns">
+      <div class="panel">
+	<br/><br/>
+	<h4> {{url_obj.name}} scraper for {{url_obj.url}} </h4>
+	<input type="text" placeholder="URL to scrape" id="scrape_url" class="medium input-text"/>
+	<a href="javascript:void(0);" class="nice medium blue button radius" id="scrape">Scrape!</a>
+	<br/>
+	<br/>
+	<br/>
+	{% for field in fields %}
+	<div class="row">
+	  <div class="three columns">
+	    <h5>{{field.field_name}}</h5>
+	  </div>
+	  <div class="nine columns" id="{{field.field_name_ns}}">
+	    To Populate
+	  </div>
+	  <br/>
+	  <br/>
+	</div>
+	{% endfor %}
+	<br/><br/>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

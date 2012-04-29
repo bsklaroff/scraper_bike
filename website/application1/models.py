@@ -10,6 +10,7 @@ class Url(models.Model):
 
 class Field(models.Model):
     field_name = models.CharField(max_length = 30)
+    field_name_ns = models.CharField(max_length = 30)
     match_text = models.CharField(max_length = 10000)
     match_data = models.CharField(max_length = 800)
     url = models.ForeignKey(Url)
