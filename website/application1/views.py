@@ -11,6 +11,7 @@ from datetime import datetime
 import uuid
 import urllib2, sys, re, json
 from bs4 import BeautifulSoup, NavigableString, Comment
+import os
 
 class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
     def http_error_302(self, req, fp, code, msg, headers):
@@ -86,6 +87,43 @@ def create_entry(request):
     print fields
     url_obj = Url(url=url, name=name)
     url_obj.save()
+    write_data = '{'
+    for field in fields:
+        match_text = ''.join(field[1].split('\n')[0].split()).strip()
+        match_data = parser(url, match_text)
+        field_obj = Field(field_name=field[0].strip(),
+                          match_text=match_text,
+                          match_data=match_data,
+                          url=url_obj,
+                          field_name_ns=field[0].strip().replace(' ', ''))
+        write_data += '"' + field[0].replace(' ', '') + '"' + ':' + match_data + ','
+        field_obj.save()
+    write_data += write_data[:-1] + '}'
+    file_name = 'scraper_' + name.replace(' ', '') + '.py'
+    os.system('cp scraper_customized.py files/static/scripts/' + file_name)
+    f = open('files/static/scripts/' + file_name, 'r')
+    lines = f.read().split('\n')
+    f.close()
+    f = open('files/static/scripts/' + file_name, 'w')
+    for line in lines:
+        if 'DATA = []' in line:
+            f.write('DATA = ' + write_data + '\n')
+        else:
+            f.write(line + '\n')
+    f.close()
+    return HttpResponse(url_obj.id)
+
+
+
+
+def create_entry2(request):
+    json_data = simplejson.loads(request.raw_post_data)
+    url = json_data['url']
+    name = json_data['name'].strip()
+    fields = json_data['fields']
+    print fields
+    url_obj = Url(url=url, name=name)
+    url_obj.save()
     for field in fields:
         print 'got here'
         match_text = field[1].split('\n')[0].replace(' ','').strip()
@@ -110,6 +148,7 @@ def clean_up_soup(soup, is_parser):
     for tag in soup.find_all(True):
         if tag.name in invalid_tags:
             tag.replace_with(tag.encode_contents())
+
     strings = []
     for tag in soup.strings:
         strings.append(tag)
