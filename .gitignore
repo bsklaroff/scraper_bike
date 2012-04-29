@@ -3,3 +3,4 @@
 *.pyc
 *#
 .#*
+website/files/static/scripts/*
