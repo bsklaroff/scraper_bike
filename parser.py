@@ -1,7 +1,28 @@
-import urllib2, sys, re, json
+import urllib2, sys, re, json, htmllib, htmlentitydefs
 from bs4 import BeautifulSoup, NavigableString, Comment
 
 INVALID_TAGS = ['a','b','i','u']
+
+def unescape(text):
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                pass
+        else:
+            # named entity
+            try:
+                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+            except KeyError:
+                pass
+        return text # leave as is
+    return re.sub("&#?\w+;", fixup, text)
 
 class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
     def http_error_302(self, req, fp, code, msg, headers):
@@ -17,7 +38,9 @@ def main():
     opener = urllib2.build_opener(MyHTTPRedirectHandler, cookieprocessor)
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     page = opener.open(url)
-    soup = BeautifulSoup(page.read())
+    html = page.read()
+    html = unescape(unicode(html, errors='ignore'))
+    soup = BeautifulSoup(html)
 
     for tag in soup.find_all(True):
         if tag.name in INVALID_TAGS:
