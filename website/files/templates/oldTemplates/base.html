@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <title>Default Page </title>
+  <head>
+    <meta charset="utf-8" />
+
+    <!-- CSS STYLE SHEETS -->
+    <link type="text/css" href="static/css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="stylesheet" />
+
+
+
+
+
+    <!-- <link rel="stylesheet/less" type="text/css" media="all" href="/static/css/less/bootstrap.less" /> -->
+    <!--<script type="text/javascript" src="/static/js/less.js"></script>  -->
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css" media="screen" title="bbxcss" />
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-responsive.css" media="screen" title="bbxcss" />
+    <link rel="stylesheet" type="text/css" href="/static/css/my.css" media="screen" title="bbxcss" />
+  </head>
+  {%csrf_token%}
+  <body>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+	<div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">Project Template</a>
+          <div class="nav-collapse">
+	    <ul class="nav">
+	      <li class="active"><a href="#">Home</a></li>
+	      <li><a href="#about">About</a></li>
+	      <li><a href="#contact">Contact</a></li>
+	    </ul>
+	    
+	    {% if is_authenticated %}
+	    <div class="navbar-inner to_center_container pull-right login_inputs hidden" style="height:50px">
+	      <div class="to_center">
+		<input id="username_login" type="text" class="input-medium  login_inputs" placeholder="Username" style="margin-top:2%"> &nbsp&nbsp
+		<input id="password_login" type="password" class="input-medium  login_inputs" placeholder="Password" style="margin-top:2%"> &nbsp&nbsp
+		<button class="btn_mod" id="login">Log In</button>
+	      </div>
+	    </div>
+	    <div class="navbar-inner to_center_container pull-right logout_inputs" style="height:50px">
+	      <div class="to_center">
+		<button class="btn_mod" id="logout" class="logout_inputs">Logout</button>
+	      </div>
+	    </div>
+
+	    {% else %}
+	    <div class="navbar-inner to_center_container pull-right login_inputs" style="height:50px">
+	      <div class="to_center">
+		<input id="username_login" type="text" class="input-medium  login_inputs" placeholder="Username" style="margin-top:2%"> &nbsp&nbsp
+		<input id="password_login" type="password" class="input-medium  login_inputs" placeholder="Password" style="margin-top:2%"> &nbsp&nbsp
+		<button class="btn_mod" id="login">Log In</button>
+	      </div>
+	    </div>
+	    <div class="navbar-inner to_center_container pull-right logout_inputs hidden" style="height:50px">
+	      <div class="to_center">
+		<button class="btn_mod" id="logout" class="logout_inputs">Logout</button>
+	      </div>
+	    </div>
+	    {% endif %}
+
+
+
+	    
+	  </div>
+
+	</div>
+      </div>
+    </div>
+    <br/><br/><br/><br/>
+
+    {% block content %}
+    {% endblock %}
+    <div class="container">
+      <div class="row-fluid">
+	<div class="span2"> </div>
+	<div class="span8">
+	  <footer id="footer">
+	    <b>Copyright 2012 SomethingShouldBeHere</b>
+	  </footer>
+	  <div class="span2"> </div>
+	</div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui-1.8.17.custom.min.js"></script>
+    <!--    <script type="text/javascript" src="/static/js/bootstrap.js"></script> -->
+    <script type="text/javascript" src="/static/js/app.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+
+    <!-- Set the viewport width to device width for mobile -->
+    <meta name="viewport" content="width=device-width" />
+
+    <title>{% block title %}SmartScraper{% endblock %}</title>
+    
+    <!-- Included CSS Files -->
+    <link rel="stylesheet" href="/static/css/foundation.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+    <!--[if lt IE 9]>
+	<link rel="stylesheet" href="stylesheets/ie.css">
+	<![endif]-->
+
+
+    <!-- IE Fix for HTML5 Tags -->
+    <!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+  </head>
+  {% csrf_token  %}
+  <body>
+    <div id="container">
+
+      <div id="header" class="container">
+	<div class="row">
+	  <div class="four columns">
+	    <h1 class="white logotext"> SmartScraper </h1>
+	  </div>
+	  
+	  <div class="seven columns">
+	    {% if username != 'Not Logged In' %}
+	    <form id="login_form" class="nice hidden">
+	      <table align="right">
+		<tr>
+		  <td><input id="username_login" class="small input-text" type="text" placeholder="Email" /></td>
+		  <td><input id="password_login" class="small input-text" type="password" placeholder="Password" /></td>
+		  <td><a href="javascript:void(0);" id="login" class="nice small blue button radius">Log In</a></td>
+		  <td><a href="javascript:void(0);" id="click_signup" class="nice small blue button radius">Sign Up</a></td>
+		</tr>
+	      </table>
+            </form>
+            <form id="logout_form" class="nice">
+	      <table align="right">
+		<tr>
+		  <td id="welcome_name" style="white-space: nowrap"> <h3 class='white'> {{username}} </h3> </td>
+		  <td><a href="javascript:void(0);" id="logout" class="nice small blue button radius">Log Out</a></td>
+		</tr>
+	      </table>
+            </form>
+            {% else %}
+	    <form id="login_form" class="nice">
+	      <table align="right">
+		<tr>
+		  <td><input id="username_login" class="small input-text" type="text" placeholder="Email" /></td>
+		  <td><input id="password_login" class="small input-text" type="password" placeholder="Password" /></td>
+		  <td><a href="javascript:void(0);" id="login" class="nice small blue button radius">Log In</a></td>
+		  <td><a href="javascript:void(0);" id="click_signup" class="nice small blue button radius">Sign Up</a></td>
+		</tr>
+	      </table>
+            </form>
+            <form id="logout_form" class="nice hidden">
+	      <table align="right">
+		<tr>
+		  <td id="welcome_name" style="white-space: nowrap"> </td>
+		  <td><a href="javascript:void(0);" id="logout" class="nice small blue button radius">Log Out</a></td>
+		</tr>
+	      </table>
+            </form>
+	    {% endif %}
+
+	  </div>
+	</div>
+	
+      </div>
+
+      {% block content %}{% endblock %}
+
+      <footer id="footer">
+        <b>Copyright 2012 CampusTutor</b>
+      </footer>
+    </div>
+
+
+    <!-- Included JS Files -->
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/modernizr.foundation.js"></script>
+    <script src="/static/js/foundation.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/smartscraper.js"></script>
+  </body>
+</html>

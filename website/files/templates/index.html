@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="twelve columns">
+      <div class="panel">
+	<div class="row">
+	  <input type="text" placeholder="Name of scraper" id="name" class="medium input-text"/>
+	  <input type="text" placeholder="URL" id="url" class="medium input-text"/>
+	</div>
+	<br/>	<br/>
+
+	
+	<div class="row" id="fields">
+	  <div id="field0">
+	    <div class="row">
+	      <div class="two columns">
+		<input type="text" placeholder="Name of Field" class="small input-text" id="field_name0"/>
+	      </div>
+	      <div class="two columns">
+		<a href="javascript:void(0);" class="nice small blue button radius" id="add_field">+</a>
+	      </div>
+	      <div class="eight columns"> </div>
+	    </div>
+	    <textarea id="text_to_match0" class="large_text_area" placeholder="Text to Match"></textarea>
+	  </div>
+	</div>
+	<a href="javascript:void(0);" class="nice medium blue button radius" id="submit">Submit</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

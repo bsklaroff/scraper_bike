@@ -1,0 +1,186 @@
+<html>
+  <title>Default Page </title>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css" media="screen" title="bbxcss" />
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-responsive.css" media="screen" title="bbxcss" />
+
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui-1.8.17.custom.min.js"></script>
+    <link type="text/css" href="static/css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="stylesheet" />
+    <script type="text/javascript">
+      $(document).ajaxSend(function(event, xhr, settings) {
+      function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie != '') {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+			  var cookie = jQuery.trim(cookies[i]);
+			  // Does this cookie string begin with the name we want?
+			  if (cookie.substring(0, name.length + 1) == (name + '=')) {
+			  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			  break;
+			  }
+			  }
+			  }
+			  return cookieValue;
+			  }
+			  function sameOrigin(url) {
+			  // url could be relative or scheme relative or absolute
+			  var host = document.location.host; // host + port
+			  var protocol = document.location.protocol;
+			  var sr_origin = '//' + host;
+			  var origin = protocol + sr_origin;
+			  // Allow absolute or scheme relative URLs to same origin
+			  return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+			  (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+			  // or any other URL that isn't scheme relative or absolute i.e relative.
+						       !(/^(\/\/|http:|https:).*/.test(url));
+						       }
+						       function safeMethod(method) {
+						       return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+						       }
+
+						       if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+						       xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+														}
+														}); 
+
+
+														</script>
+    
+    <script type="text/javascript">
+      $(function() {
+      $('.datepicker').datepicker();
+      });
+      $(document).ready(function() {
+      $('#addSelect').click(function() {
+      var html = '<br/><select class="categories"> <option> Choose your categories </option><option> Category 1 </option><option> Category 2 </option></select>'
+      $('#toAddCategories').append(html);
+      })
+      $('#submit').click(function() {
+      var toSubmit = {};
+      toSubmit['eventName'] = $('input:eq(1)').val()
+      toSubmit['shortDescription'] = $('input:eq(2)').val()
+      toSubmit['startDate'] = $('input:eq(3)').val()
+      toSubmit['startTime'] = $('input:eq(4)').val()
+      toSubmit['endDate'] = $('input:eq(5)').val()
+      toSubmit['endTime'] = $('input:eq(6)').val()
+      toSubmit['location'] = $('input:eq(7)').val()
+      toSubmit['details'] = $('input:eq(8)').val()
+      
+      x=0
+      toSubmit['categories'] = new Array()
+      while ($('select:eq(' + x +')').val() != undefined) {
+      toSubmit.categories[x] = $('select:eq(' + x + ')').val()
+      alert(toSubmit.categories[x])
+      x = x + 1
+      }
+      var data = JSON.stringify(toSubmit);		
+      $.ajax({
+      type: 'POST',
+      dataType: 'text', 
+      url: '/postData/',
+      data: data,
+      dataType: 'text',
+      success: function(g) {
+      alert("success");
+      alert(g);
+      }
+      })
+      })
+      })
+    </script>
+
+
+  </head>
+  {%csrf_token%}
+
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="#">Project Template</a>
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="hero-unit">
+    <div class = "row">
+    	<div class="span6">
+    	      <br/> <br/> <br/>
+      	<form>
+		<table>
+	  	<tr>
+	    <td> Event name: </td>
+	    <td> <input type="text" id="name" name="name"/> </td>
+	  </tr>
+	  	<tr>
+	    <td> Short Description: </td>
+	    <td> <input type="text" id="name" name="short description"/> </td>
+	  </tr>
+	  	<tr>
+	    <td> Start Date: </td>
+	    <td> <input type="text" class="datepicker"/> </td>
+	  </tr>
+      	<tr>
+	    <td> Start Time: </td>
+	    <td> <input type="text"/> </td>
+	  </tr>
+	  	<tr>
+	    <td> End Date: </td>
+	    <td> <input type="text" class="datepicker"/> </td>
+	  </tr>
+	  	<tr>
+	    <td> End Time: </td>
+	    <td> <input type="text"/> </td>
+	  </tr>
+	  	<tr>
+	    <td> Location: </td>
+	    <td><input type="text" id="location" name="location"/> </td>
+	  </tr>
+	  	<tr>
+	    <td> Details:</td>
+	    <td> <input type="text" id="name" name="name"/> </td>
+	  </tr>
+	  	<tr>
+	    <td> Categories: </td>
+	    <td id="toAddCategories">
+	      <select class="categories">
+		<option> Choose your categories </option>
+		<option> Category 1 </option>
+		<option> Category 2 </option>
+	      </select>
+	      <input type="button" value="+" id="addSelect"/>
+	    </td>
+	    </tr>
+	</table>
+
+	<input type="button" value="Submit" id="submit"/>
+      </form>
+    	</div>
+    	<div class="col"> abcdefg</div>
+    	<div class = "row"> hijklmnop </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="span10">
+      <h2>Heading</h2>
+      <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+      <p><a class="btn" href="#">View details &raquo;</a></p>
+    </div>
+  </div>
+</html>
