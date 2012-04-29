@@ -39,7 +39,7 @@ jQuery(document).ready(function ($) {
     });
     field_counter = 1
     $('#add_field').click(function() {
-	$('#fields').append('<div id=field' + field_counter + '><div class="row"> <div class="two columns"><input type="text" placeholder="Name of Field" class="small input-text" id="field_name' + field_counter + '"/></div><div class="two columns"><a href="javascript:void(0);" class="nice small white button radius" id="delete_field' + field_counter + '">-</a></div><div class="eight columns"> </div></div><textarea id="text_to_match' + field_counter + '" class="large_text_area" placeholder="Text to Match"></textarea></div></div>');
+	$('#fields').append('<div id=field' + field_counter + '><div class="row"> <div class="two columns"><input type="text" placeholder="Name of Field" class="small input-text" id="field_name' + field_counter + '"/></div><div class="two columns"><a href="javascript:void(0);" class="nice small white button radius" id="delete_field' + field_counter + '">-</a></div><div class="eight columns"></div></div><div class="row"><div class="four columns"><textarea id="text_to_match' + field_counter + '" class="large_text_area" placeholder="Text to Match"></textarea></div><div class="two columns"><label for="ignorebreaks' + field_counter + '"><input type="checkbox" id="ignore_breaks' + field_counter + '" />Ignore Breaks</label></div><div class="six columns"></div></div></div>');
 	var local_counter = field_counter
 	$('#delete_field' + local_counter).click(function() {
 	    $('#field_name'+ local_counter).remove();
@@ -66,6 +66,7 @@ jQuery(document).ready(function ($) {
 	    field = new Array();
 	    field[0] = $('#field_name' + counter).val();
 	    field[1] = $('#text_to_match' + counter).val();
+	    field[2] = $('#ignore_breaks' + counter).is(':checked');
 	    fields[counter_array]  = field;
 	    alert($('#field_name' + counter).val());
 	    alert($('#text_to_match' + counter).val());

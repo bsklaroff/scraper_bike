@@ -92,11 +92,11 @@ def create_entry(request):
         field_obj = Field(field_name=field[0].strip(),
                           match_text=match_text,
                           match_data=parser(url, match_text),
+                          ignore_breaks=field[2],
                           url=url_obj,
                           field_name_ns=field[0].strip().replace(' ', ''))
         field_obj.save()
     return HttpResponse(url_obj.id)
-
 
 def get_entry(request):
     id = request.GET['id']
@@ -147,7 +147,7 @@ def scrape(request):
 
     return_field_data = {}
     for field in list(fields):
-        return_field_data[field.field_name_ns] = scraper(soup, field.match_data)
+        return_field_data[field.field_name_ns] = scraper(soup, field.match_data, field.ignore_breaks)
 
     return HttpResponse(json.dumps(return_field_data))
 
@@ -202,7 +202,7 @@ def parser(url, text_to_match):
     #f_out.write(json.dumps([path, el_id]))
     #f_out.close()
 
-def scraper(soup, match_data):
+def scraper(soup, match_data, ignore_breaks):
     cur_el = soup
     path, elem_id = json.loads(match_data)
     for node in path:
@@ -226,6 +226,8 @@ def scraper(soup, match_data):
     res = []
     for el in cur_el.contents:
         if isinstance(el, NavigableString) and not isinstance(el, Comment):
-            if el.strip():
+            if el.strip() or ignore_breaks:
                 res.append(el)
-    return res[elem_id].strip()
+    if not ignore_breaks:
+        return res[elem_id].strip()
+    return ''.join(res).strip()

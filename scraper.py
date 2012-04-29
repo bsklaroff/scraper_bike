@@ -1,7 +1,7 @@
 import urllib2, sys, re, json
 from bs4 import BeautifulSoup, NavigableString, Comment
 
-IGNORE_BREAKS = True
+IGNORE_BREAKS = False
 INVALID_TAGS = ['a','b','i','u']
 
 class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
@@ -58,9 +58,9 @@ def main():
     res = []
     for el in cur_el.contents:
         if isinstance(el, NavigableString) and not isinstance(el, Comment):
-            if el.strip() or not IGNORE_BREAKS:
+            if el.strip() or IGNORE_BREAKS:
                 res.append(el)
-    if IGNORE_BREAKS:
+    if not IGNORE_BREAKS:
         print res[elem_id].strip()
     else:
         print ''.join(res).strip()
