@@ -1,6 +1,6 @@
 import urllib2, sys, re, json
 from bs4 import BeautifulSoup, NavigableString, Comment
-DATA = []
+DATA = '{"title":[[["html", {}, 0, 0], ["body", {"class": ["posting"]}, 0, 0], ["h2", {}, 0, 0]], 0]}'
 IGNORE_BREAKS = True
 INVALID_TAGS = ['a','b','i','u']
 
@@ -70,4 +70,5 @@ def scrape_single(url, single_data):
         return res[elem_id].strip()
     else:
         return ''.join(res).strip()
+
 

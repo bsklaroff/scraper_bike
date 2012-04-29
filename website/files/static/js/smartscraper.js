@@ -82,7 +82,7 @@ jQuery(document).ready(function ($) {
             dataType: 'text',
             success: function(g) {
 		alert(g);
-                window.location.href = '/get?id=' + g;
+                //window.location.href = '/get?id=' + g;
 
             }
         });

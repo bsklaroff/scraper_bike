@@ -35,7 +35,6 @@ def home(request):
 #return HttpResponse("you have come home to app1")
 
 def createUser(request):
-
     jsonData = simplejson.loads(request.raw_post_data)
     username = jsonData['username'].strip()
     email = jsonData['email'].strip()
@@ -97,8 +96,9 @@ def create_entry(request):
                           url=url_obj,
                           field_name_ns=field[0].strip().replace(' ', ''))
         write_data += '"' + field[0].replace(' ', '') + '"' + ':' + match_data + ','
+        print match_data
         field_obj.save()
-    write_data += write_data[:-1] + '}'
+    write_data = write_data[:-1] + '}'
     file_name = 'scraper_' + name.replace(' ', '') + '.py'
     os.system('cp scraper_customized.py files/static/scripts/' + file_name)
     f = open('files/static/scripts/' + file_name, 'r')
@@ -107,7 +107,7 @@ def create_entry(request):
     f = open('files/static/scripts/' + file_name, 'w')
     for line in lines:
         if 'DATA = []' in line:
-            f.write('DATA = ' + write_data + '\n')
+            f.write("DATA = '" + write_data + "'\n")
         else:
             f.write(line + '\n')
     f.close()
@@ -140,7 +140,8 @@ def get_entry(request):
     id = request.GET['id']
     url_obj = Url.objects.get(id=id)
     fields = Field.objects.filter(url = url_obj)
-    c = {'url_obj' : url_obj, 'fields' : fields, 'id' : id}
+    url_link = '/static/scripts/scraper_' + url_obj.name.replace(' ', '') + '.py'
+    c = {'url_obj' : url_obj, 'fields' : fields, 'id' : id, 'link' : url_link}
     return render_to_response('get_entry.html', c)
 
 def clean_up_soup(soup, is_parser):

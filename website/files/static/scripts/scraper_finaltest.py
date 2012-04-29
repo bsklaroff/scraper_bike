@@ -1,6 +1,6 @@
 import urllib2, sys, re, json
 from bs4 import BeautifulSoup, NavigableString, Comment
-DATA = []
+DATA = {"title":[[["html", {}, 0, 0], ["body", {"class": ["posting"]}, 0, 0], ["h2", {}, 0, 0]], 0],"body":[[["html", {}, 0, 0], ["body", {"class": ["posting"]}, 0, 0], ["hr", {}, 0, 0], ["br", {}, 0, 0], ["hr", {}, 0, 0], ["br", {}, 0, 0], ["div", {"id": "userbody"}, 0, 0]], 0],{"title":[[["html", {}, 0, 0], ["body", {"class": ["posting"]}, 0, 0], ["h2", {}, 0, 0]], 0],"body":[[["html", {}, 0, 0], ["body", {"class": ["posting"]}, 0, 0], ["hr", {}, 0, 0], ["br", {}, 0, 0], ["hr", {}, 0, 0], ["br", {}, 0, 0], ["div", {"id": "userbody"}, 0, 0]], 0]}
 IGNORE_BREAKS = True
 INVALID_TAGS = ['a','b','i','u']
 
@@ -13,8 +13,7 @@ class MyHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
 
 def scrape(url):
     output = {}
-    data_json = json.loads(DATA)
-    for k, v in data_json.items():
+    for k, v in DATA.items():
         output[k] = scrape_single(url, v)
     return output
 
@@ -43,7 +42,7 @@ def scrape_single(url, single_data):
             strings.remove(tag)
 
     cur_el = soup
-    path, elem_id = single_data
+    path, elem_id = json.loads(single_data)
     for node in path:
         elem_name, elem_attrs, elem_attrs_num, elem_num = node
         matching_elems = cur_el.find_all(elem_name.strip())
@@ -70,4 +69,5 @@ def scrape_single(url, single_data):
         return res[elem_id].strip()
     else:
         return ''.join(res).strip()
+
 
