@@ -105,7 +105,7 @@ jQuery(document).ready(function ($) {
 		    $('#' + field).html("");
 		    for (i in fields[field]) {
 			f = fields[field][i];
-			if (f == "False" || f.toLowerCase() == "none") {
+			if (!f) {
 			    continue;
 			}
 			$('#' + field).append(f + "<br/>");

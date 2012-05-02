@@ -74,7 +74,8 @@ def multi_parser(url, string_to_match):
             if ele == current_element:
                 break
         
-        match = (current_element.name, current_element.attrs, parents_nth_tag)
+        cur_el_attrs = current_element.attrs if current_element.attrs else {}
+        match = (current_element.name, cur_el_attrs, parents_nth_tag)
         path.append(match)
         current_element = current_element.parent
     return json.dumps(path)
