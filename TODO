@@ -1,0 +1,38 @@
+Single Scraping
+
+Working
+craigslist.org
+nytimes.com
+wallstreetjournal
+most things in general...
+
+Not Working
+http://psychologyinfo.com/directory/CA/
+PHP sites
+
+
+Multiple Scraping on one page
+
+Working
+schedule.berkeley.edu
+events.berkeley.edu
+wikipedia (some stuff like http://en.wikipedia.org/wiki/List_of_Presidents_of_the_United_States , but sometimes doesn't work if what you're looking for is already on another page)
+random other sites
+
+Not working
+http://psychologyinfo.com/directory/CA/
+PHP sites
+nytimes search
+still needs a lot of work...
+
+
+
+Queue
+Get multiple scraping to work better
+Implement "Get Code" for multiple scraping
+Rewrite to not use beautiful soup
+Code cleanup
+Fix http://psychologyinfo.com/directory/CA/ bug
+sites that load using javascripts (use mechanize)
+handle php sites
+Make better UI

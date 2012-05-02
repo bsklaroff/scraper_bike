@@ -46,7 +46,8 @@ def get_entry_multi(request, url_obj):
 def multi_scrape(request, url, url_obj):
     multiple_match = MultipleMatch.objects.get(url=url_obj)
     path = multiple_match.match_data
-    to_return = {multiple_match.field_name_ns:multi_scraper(url, path)}
+    orig_text = multiple_match.match_text
+    to_return = {multiple_match.field_name_ns:multi_scraper(url, path, orig_text)}
     return HttpResponse(json.dumps(to_return))
 
 def multi_parser(url, string_to_match):
@@ -81,7 +82,7 @@ def multi_parser(url, string_to_match):
     return json.dumps(path)
 
 
-def multi_scraper(url, path):
+def multi_scraper(url, path, orig_text):
     path = json.loads(path)
     opener = urllib2.build_opener()
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
@@ -90,27 +91,34 @@ def multi_scraper(url, path):
     clean_up_soup(soup, False)
     path.reverse()
     current_element = soup
-
-    greatest_false = 1
+    
+    greatest_false = float('inf')
     best_match = []
+    orig_text = orig_text.replace(' ', '')
     for i in range(len(path)):
-        for j in range(len(path)):
-            test_values = recursive_match(path, i, j, current_element)
-            if not isinstance(test_values, list):
+        test_values = recursive_match(path, 0, i, current_element)
+        if not isinstance(test_values, list):
+            continue
+        if not test_values:
+            continue
+        if len(test_values) > 300 or len(test_values) < 2:
+            continue
+        print test_values
+        false_count = 0
+        possible = False
+        for x in test_values:
+            if x == False or x is None:
+                false_count += 1
                 continue
-            if not test_values:
-                continue
-            print test_values
-            if len(test_values) > 300 or len(test_values) < 2:
-                continue
-            false_count = 0
-            for x in test_values:
-                if x == False or x is None:
-                    false_count += 1
-            false_count /= (len(test_values) * 1.0)
-            if false_count < greatest_false:
-                best_match = test_values
-                greatest_false = false_count
+            if orig_text in x.replace(' ', ''):
+                possible = True
+        if not possible:
+            continue
+        false_count = false_count * 2 - (len(test_values) * 1.0) + (len(test_values) - false_count) / (len(test_values) * 1.0)
+        if false_count < greatest_false:
+            best_match = test_values
+            greatest_false = false_count
+    print best_match
     return best_match
 
 
@@ -123,6 +131,8 @@ def recursive_match(path, i, j, current_element):
         return [recursive_match(path, i + 1, j, next_element) for next_element in tag_type_elements]
     else:
         if len(tag_type_elements) <= node[2]:
+            
+#print tag_type_elements, node[2], node[0], i, len(path)
             return False
         next_element = tag_type_elements[node[2]]
         if next_element.attrs == node[1]:
@@ -132,7 +142,7 @@ def recursive_match(path, i, j, current_element):
             x = 2
             #print "Attribute did not match"
         current_element = next_element
-        return recursive_match(path, i + 1, j, current_element)
+    return recursive_match(path, i + 1, j, current_element)
 
 
 def clean_up_soup(soup, is_parser):
